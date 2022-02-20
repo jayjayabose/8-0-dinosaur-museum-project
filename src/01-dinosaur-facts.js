@@ -22,7 +22,21 @@ const exampleDinosaurData = require("../data/dinosaurs");
  *  getTallestDinosaur(dinosaurs);
  *  //> { Brachiosaurus: 98.43 }
  */
-function getTallestDinosaur(dinosaurs) {}
+function getTallestDinosaur(dinosaurs) {
+  //check for empty array
+  if (dinosaurs.length === 0) return {};
+
+  //set initial value
+  let tallest = dinosaurs[0];
+  
+  //loop through each dinosaur in arracy, if taller, update tallest
+  for (let dinosaur of dinosaurs) if (dinosaur.lengthInMeters > tallest.lengthInMeters) tallest = dinosaur;
+  
+  //return new object
+  return {[tallest.name] : tallest.lengthInMeters*3.281};
+}
+
+
 
 /**
  * getDinosaurDescription()
@@ -44,7 +58,22 @@ function getTallestDinosaur(dinosaurs) {}
  *  getDinosaurDescription(dinosaurs, "incorrect-id");
  *  //> "A dinosaur with an ID of 'incorrect-id' cannot be found."
  */
-function getDinosaurDescription(dinosaurs, id) {}
+function getDinosaurDescription(dinosaurs, id) {
+  
+  //find dinosaur
+  let dinosaur = dinosaurs.find( element => {
+    //console.log('0: ' + element.dinosaurId + ' ' + id);  
+    return element.dinosaurId === id;
+  });
+  
+  //if falsey return error  
+  if (!(dinosaur)) return `A dinosaur with an ID of 'incorrect-id' cannot be found.`;
+
+  //create and return output
+  return `${dinosaur.name} (${dinosaur.pronunciation})\n${dinosaur.info} It lived in the ${dinosaur.period} period, over ${dinosaur.mya[dinosaur.mya.length-1]} million years ago.`;}
+
+//getDinosaurDescription(exampleDinosaurData, 'U9vuZmgKwUr');
+
 
 /**
  * getDinosaursAliveMya()
@@ -71,7 +100,28 @@ function getDinosaurDescription(dinosaurs, id) {}
  *  getDinosaursAliveMya(dinosaurs, 65, "unknown-key");
  *  //> ["WHQcpcOj0G"]
  */
-function getDinosaursAliveMya(dinosaurs, mya, key) {}
+function getDinosaursAliveMya(dinosaurs, mya, key) {
+  
+  //create array of dinosaurs that were alive
+  let aliveArray = dinosaurs.filter( dinosaur => {
+    //handle dinosaurs with one mya value
+    if (dinosaur.mya.length === 1) {
+      return ( dinosaur.mya[0] - mya === 0 || dinosaur.mya[0] - mya === 1)
+    //handle dinosaurs with two mya values
+    } else {  
+      return (dinosaur.mya[0] >= mya && mya >= dinosaur.mya[1]);  
+    }
+  });
+  
+  //return empty array if no dinosaurs were alive
+  if (aliveArray.length === 0) return [];
+
+  //if key not provided, or is invalid, return dinosaur IDs
+  if (!key || !(Object.keys(dinosaurs[0]).includes(key))) return aliveArray.map(dinosaur => dinosaur.dinosaurId);
+
+  //if valid key provided, return array of values for key
+  return aliveArray.map( dinosaur => {return dinosaur[key]});
+}
 
 module.exports = {
   getTallestDinosaur,
