@@ -25,8 +25,24 @@ const exampleRoomData = require("../data/rooms");
  *  getRoomByDinosaurName(dinosaurs, rooms, "Pterodactyl");
  *  //> "Dinosaur with name 'Pterodactyl' cannot be found."
  */
-function getRoomByDinosaurName(dinosaurs, rooms, dinosaurName) {}
+function getRoomByDinosaurName(dinosaurs, rooms, dinosaurName) {
+  //find dinosaur in array where dinosaurName matches
+  let dinosaur = dinosaurs.find(dinosaur => dinosaur.name === dinosaurName); //> dinosaur object | undefined
+  
+  //if dinosaur was not found, return error
+  if (dinosaur === undefined ) return `Dinosaur with name '${dinosaurName}' cannot be found.`; 
 
+  //attempt to find room  in array where dinosaurId matches
+  let room = rooms.find( room => room.dinosaurs.includes(dinosaur.dinosaurId) ); //> room object | undefined
+  
+  //if room was not found, return error
+  if (room === undefined ) return `Dinosaur with name '${dinosaurName}' cannot be found in any rooms.`; 
+  
+  //return name of room
+  return room.name;
+}
+
+//getRoomByDinosaurName(dinosaurs, rooms, "Tyrannosaurus");
 /**
  * getConnectedRoomNamesById()
  * ---------------------
@@ -49,7 +65,25 @@ function getRoomByDinosaurName(dinosaurs, rooms, dinosaurName) {}
       "Kit Hopkins Education Wing"
     ]
  */
-function getConnectedRoomNamesById(rooms, id) {}
+function getConnectedRoomNamesById(rooms, id) {
+  //NOTE: this did not pass final test, but i wonder if the last test makes sense. if one of the elements in connectsTo is an invalid room id, why not return the valid rooms? this is what my function does.
+  //create output array
+  let output = [];
+
+  //NOTE: this cold be done more simply by finding the room and reading connectsTo
+  //loop through each room in array
+  rooms.forEach(room => {   
+    //check if id is in connectsTo array, and add room name to output
+    if (room.connectsTo.includes(id)) output.push(room.name);
+  });
+    
+  //if output arry is empty, return error
+  if(output.length === 0) return `Room with ID of '${id}' could not be found.`;
+  //return output array
+  return output; 
+}
+
+console.log(getConnectedRoomNamesById(exampleRoomData, 'A6QaYdyKra'));
 
 module.exports = {
   getRoomByDinosaurName,
