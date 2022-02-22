@@ -54,7 +54,41 @@ const exampleTicketData = require("../data/tickets");
     calculateTicketPrice(tickets, ticketInfo);
     //> "Entrant type 'kid' cannot be found."
  */
-function calculateTicketPrice(ticketData, ticketInfo) {}
+
+const ticketInfo = {
+  ticketType: "general",
+  entrantType: "child",
+  extras: ["movie"],
+};
+function calculateTicketPrice(ticketData, ticketInfo) {
+  //0. error checks
+  if (ticketData[ticketInfo.ticketType] === undefined) return `Ticket type '${ticketInfo.ticketType}' cannot be found.`;
+
+  if (ticketData[ticketInfo.ticketType].priceInCents[ticketInfo.entrantType] === undefined) return `Entrant type '${ticketInfo.entrantType}' cannot be found.`;
+
+  //1. get base price
+  let price = ticketData[ticketInfo.ticketType].priceInCents[ticketInfo.entrantType]; 
+
+  //2. add extras price
+  for(let i=0; i< ticketInfo.extras.length; i++){
+    if (ticketData.extras[ticketInfo.extras[i]] === undefined) return `Extra type '${ticketInfo.extras[i]}' cannot be found.`;
+    price +=ticketData.extras[ticketInfo.extras[i]].priceInCents[ticketInfo.entrantType];
+  }
+
+  /*
+  //NOTE: the return functioned for the iterator function note for the main function. resolved by for loop ^^
+  ticketInfo.extras.forEach( extra => {
+    //increment price by cost of each extra
+    console.log(`${ticketData.extras[extra]}`);
+    if (ticketData.extras[extra] === undefined) return `Extra type '${extra}' cannot be found.`;
+    //if (ticketData.extras[extra] === undefined) console.log(`Extra type '${extra}' cannot be found.`);
+    price +=ticketData.extras[extra].priceInCents[ticketInfo.entrantType];
+  });
+  */
+  return price;
+}
+
+//console.log(calculateTicketPrice(exampleTicketData, ticketInfo));
 
 /**
  * purchaseTickets()
@@ -109,7 +143,77 @@ function calculateTicketPrice(ticketData, ticketInfo) {}
     purchaseTickets(tickets, purchases);
     //> "Ticket type 'discount' cannot be found."
  */
-function purchaseTickets(ticketData, purchases) {}
+
+const purchases = [
+  {
+    ticketType: "general",
+    entrantType: "adult",
+    extras: ["movie", "terrace"],
+  },
+  {
+    ticketType: "general",
+    entrantType: "senior",
+    extras: ["terrace"],
+  },
+  {
+    ticketType: "general",
+    entrantType: "child",
+    extras: ["education", "movie", "terrace"],
+  },
+  {
+    ticketType: "general",
+    entrantType: "child",
+    extras: ["education", "movie", "terrace"],
+  },
+];
+
+function purchaseTickets(ticketData, purchases) {
+  //create initial output text
+  let output = `Thank you for visiting the Dinosaur Museum!\n-------------------------------------------`;
+  //create inital total price
+  let totalPrice = 0;
+  
+  //loop through purchases array
+  for(let i=0; i<purchases.length; i++){  //NOTE: COULD MAKE THIS arry.ForEach() I think.
+    
+    //get ticket price
+    let ticketPrice = calculateTicketPrice(exampleTicketData, purchases[i]); //> error msg | price in cents
+    
+    //handle error msg
+    if( ! (Number.isInteger(ticketPrice)) ) {
+      return ticketPrice;
+    } else {
+      ticketPrice = ticketPrice/100; 
+    }
+    //format price for receipt and increment total price
+    let msgTicketPrice = `$${ticketPrice.toFixed(2)}`;
+    totalPrice += ticketPrice;
+    
+    //create ticket receipt message //> \nAdult General Admission: $50.00 (Movie Access, Terrace Access)
+    let msgEntrantType = purchases[i].entrantType.charAt(0).toUpperCase() + purchases[i].entrantType.slice(1); 
+    let msgTicketType = `${exampleTicketData[purchases[i].ticketType].description}`;
+    let msgTicktExtras = '';
+    let ticketExtrasArray = [];
+
+    //loop throughh extras an get formatted name
+    purchases[i].extras.forEach( extra => {
+      ticketExtrasArray.push(exampleTicketData.extras[extra].description);
+    });
+
+    //if extras were found, format output
+    if (ticketExtrasArray.length) msgTicktExtras = ` (${ticketExtrasArray.join(', ')})`;
+
+    //append ticket receipt message text
+    output += `\n${msgEntrantType} ${msgTicketType}: ${msgTicketPrice}${msgTicktExtras}`;
+    
+  }
+  output += `\n-------------------------------------------\nTOTAL: $${totalPrice.toFixed(2)}`
+  return output;
+}
+
+//console.log(purchaseTickets(exampleTicketData, purchases));
+
+
 
 // Do not change anything below this line.
 module.exports = {
